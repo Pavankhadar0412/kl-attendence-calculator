@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KL University Attendance Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e22ce 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            box-shadow: 
+                0 30px 60px rgba(0, 0, 0, 0.2),
+                0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+            padding: 50px;
+            max-width: 900px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .university-header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .university-logo-container {
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .university-logo-img {
+            height: 80px;
+            width: auto;
+            max-width: 300px;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+            transition: transform 0.3s ease;
+        }
+
+        .university-logo-img:hover {
+            transform: scale(1.05);
+        }
+
+        h1 {
+            text-align: center;
+            color: #1e3c72;
+            margin-bottom: 10px;
+            font-size: 2.8em;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(135deg, #1e3c72, #7e22ce);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #64748b;
+            font-size: 1.1em;
+            margin-bottom: 30px;
+            font-weight: 500;
+        }
+
+        .components-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .component-card {
+            background: rgba(248, 250, 252, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 18px;
+            padding: 28px;
+            border: 2px solid rgba(226, 232, 240, 0.8);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .component-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #1e3c72, #7e22ce);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .component-card:hover::before {
+            opacity: 1;
+        }
+
+        .component-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 
+                0 20px 40px rgba(30, 60, 114, 0.15),
+                0 0 0 1px rgba(126, 34, 206, 0.1);
+            border-color: rgba(126, 34, 206, 0.3);
+        }
+
+        .component-title {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: #1e3c72;
+            margin-bottom: 22px;
+            text-align: center;
+            padding-bottom: 12px;
+            border-bottom: 2px solid rgba(226, 232, 240, 0.8);
+            position: relative;
+        }
+
+        .component-title::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(90deg, #1e3c72, #7e22ce);
+            border-radius: 1px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #6c757d;
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid rgba(226, 232, 240, 0.8);
+            border-radius: 12px;
+            font-size: 1em;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(5px);
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #7e22ce;
+            box-shadow: 0 0 0 3px rgba(126, 34, 206, 0.1);
+            background: white;
+            transform: translateY(-1px);
+        }
+
+        input[type="number"]:hover {
+            border-color: rgba(126, 34, 206, 0.5);
+        }
+
+        .attendance-display {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 14px;
+            padding: 18px;
+            margin-top: 18px;
+            text-align: center;
+            border: 2px solid rgba(226, 232, 240, 0.6);
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .attendance-display::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(30, 60, 114, 0.02), rgba(126, 34, 206, 0.02));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .attendance-display:hover::before {
+            opacity: 1;
+        }
+
+        .percentage {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .percentage.good {
+            color: #28a745;
+        }
+
+        .percentage.warning {
+            color: #ffc107;
+        }
+
+        .percentage.danger {
+            color: #dc3545;
+        }
+
+        .calculate-btn {
+            background: linear-gradient(135deg, #1e3c72 0%, #7e22ce 100%);
+            color: white;
+            border: none;
+            padding: 18px 50px;
+            font-size: 1.2em;
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            display: block;
+            margin: 35px auto;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                0 10px 30px rgba(30, 60, 114, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+        }
+
+        .calculate-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .calculate-btn:hover::before {
+            left: 100%;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 
+                0 15px 40px rgba(30, 60, 114, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+        }
+
+        .calculate-btn:active {
+            transform: translateY(-1px) scale(1.02);
+        }
+
+        .overall-section {
+            background: linear-gradient(135deg, #1e3c72 0%, #7e22ce 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 35px;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                0 20px 40px rgba(30, 60, 114, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+        }
+
+        .overall-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%),
+                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(-20px, -20px) rotate(180deg); }
+        }
+
+        .overall-title {
+            font-size: 1.6em;
+            font-weight: 700;
+            margin-bottom: 18px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .overall-percentage {
+            font-size: 3em;
+            font-weight: 800;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .attendance-message {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-top: 15px;
+            padding: 12px 20px;
+            border-radius: 12px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+
+        .attendance-message.safe {
+            background: rgba(40, 167, 69, 0.2);
+            color: #000000;
+            border: 2px solid rgba(40, 167, 69, 0.3);
+        }
+
+        .attendance-message.warning {
+            background: rgba(255, 193, 7, 0.2);
+            color: #000000;
+            border: 2px solid rgba(255, 193, 7, 0.3);
+        }
+
+        .attendance-message.danger {
+            background: rgba(220, 53, 69, 0.2);
+            color: #000000;
+            border: 2px solid rgba(220, 53, 69, 0.3);
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .components-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="university-header">
+            <div class="university-logo-container">
+                <img src="kl-logo.png" alt="KL University Logo" class="university-logo-img">
+            </div>
+            <h1>KL University Attendance Calculator</h1>
+            <div class="subtitle">Calculate Your Academic Attendance Performance</div>
+        </div>
+        
+        <div class="error-message" id="errorMessage"></div>
+
+        <div class="components-grid">
+            <!-- Lecture Component -->
+            <div class="component-card">
+                <div class="component-title">Lecture</div>
+                <div class="input-group">
+                    <label for="lectureTotal">Total Classes</label>
+                    <input type="number" id="lectureTotal" min="0" placeholder="Enter total classes">
+                </div>
+                <div class="input-group">
+                    <label for="lectureAttended">Attended Classes</label>
+                    <input type="number" id="lectureAttended" min="0" placeholder="Enter attended classes">
+                </div>
+                <div class="attendance-display">
+                    <div class="percentage" id="lecturePercentage">-</div>
+                </div>
+            </div>
+
+            <!-- Practical Component -->
+            <div class="component-card">
+                <div class="component-title">Practical</div>
+                <div class="input-group">
+                    <label for="practicalTotal">Total Classes</label>
+                    <input type="number" id="practicalTotal" min="0" placeholder="Enter total classes">
+                </div>
+                <div class="input-group">
+                    <label for="practicalAttended">Attended Classes</label>
+                    <input type="number" id="practicalAttended" min="0" placeholder="Enter attended classes">
+                </div>
+                <div class="attendance-display">
+                    <div class="percentage" id="practicalPercentage">-</div>
+                </div>
+            </div>
+
+            <!-- Tutorial Component -->
+            <div class="component-card">
+                <div class="component-title">Tutorial</div>
+                <div class="input-group">
+                    <label for="tutorialTotal">Total Classes</label>
+                    <input type="number" id="tutorialTotal" min="0" placeholder="Enter total classes">
+                </div>
+                <div class="input-group">
+                    <label for="tutorialAttended">Attended Classes</label>
+                    <input type="number" id="tutorialAttended" min="0" placeholder="Enter attended classes">
+                </div>
+                <div class="attendance-display">
+                    <div class="percentage" id="tutorialPercentage">-</div>
+                </div>
+            </div>
+
+            <!-- Skill Component -->
+            <div class="component-card">
+                <div class="component-title">Skill</div>
+                <div class="input-group">
+                    <label for="skillTotal">Total Classes</label>
+                    <input type="number" id="skillTotal" min="0" placeholder="Enter total classes">
+                </div>
+                <div class="input-group">
+                    <label for="skillAttended">Attended Classes</label>
+                    <input type="number" id="skillAttended" min="0" placeholder="Enter attended classes">
+                </div>
+                <div class="attendance-display">
+                    <div class="percentage" id="skillPercentage">-</div>
+                </div>
+            </div>
+        </div>
+
+        <button class="calculate-btn" onclick="calculateAttendance()">Calculate Attendance</button>
+
+        <div class="overall-section">
+            <div class="overall-title">Overall Attendance</div>
+            <div class="overall-percentage" id="overallPercentage">-</div>
+            <div class="attendance-message" id="attendanceMessage"></div>
+        </div>
+    </div>
+
+    <script>
+        function calculateAttendance() {
+            const components = ['lecture', 'practical', 'tutorial', 'skill'];
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.style.display = 'none';
+            
+            let componentData = {};
+            let hasError = false;
+            let hasAnyInput = false;
+
+            for (let component of components) {
+                const totalInput = document.getElementById(component + 'Total');
+                const attendedInput = document.getElementById(component + 'Attended');
+                const percentageDisplay = document.getElementById(component + 'Percentage');
+
+                const total = parseFloat(totalInput.value) || 0;
+                const attended = parseFloat(attendedInput.value) || 0;
+
+                // Check if user entered any values for this component
+                const hasComponentInput = totalInput.value !== '' || attendedInput.value !== '';
+                if (hasComponentInput) {
+                    hasAnyInput = true;
+                }
+
+                // Validation only for components with user input
+                if (hasComponentInput) {
+                    if (total < 0 || attended < 0) {
+                        showError('Values cannot be negative!');
+                        hasError = true;
+                        break;
+                    }
+
+                    if (attended > total) {
+                        showError(`${component.charAt(0).toUpperCase() + component.slice(1)}: Attended classes cannot be greater than total classes!`);
+                        hasError = true;
+                        break;
+                    }
+                }
+
+                // Calculate percentage
+                let percentage = 0;
+                
+                if (hasComponentInput && total > 0) {
+                    percentage = (attended / total) * 100;
+                    componentData[component] = percentage;
+                } else if (hasComponentInput) {
+                    // If user entered values but total is 0, treat as 0%
+                    percentage = 0;
+                    componentData[component] = percentage;
+                }
+
+                // Display result with color coding
+                if (hasComponentInput) {
+                    percentageDisplay.textContent = percentage.toFixed(2) + '%';
+                    percentageDisplay.className = 'percentage';
+                    
+                    if (percentage >= 75) {
+                        percentageDisplay.classList.add('good');
+                    } else if (percentage >= 60) {
+                        percentageDisplay.classList.add('warning');
+                    } else {
+                        percentageDisplay.classList.add('danger');
+                    }
+                } else {
+                    // Empty component - show dash
+                    percentageDisplay.textContent = '-';
+                    percentageDisplay.className = 'percentage';
+                }
+            }
+
+            // Calculate overall percentage with dynamic weighted average
+            if (!hasError && hasAnyInput) {
+                const overallDisplay = document.getElementById('overallPercentage');
+                
+                // Calculate dynamic weights based on which components are filled
+                let weights = {};
+                const filledComponents = Object.keys(componentData);
+                
+                if (filledComponents.length === 1) {
+                    // If only one component, it gets 100%
+                    weights[filledComponents[0]] = 1.0;
+                } else {
+                    // Define base priorities
+                    const basePriorities = {
+                        'lecture': 3,
+                        'practical': 1,
+                        'tutorial': 1,
+                        'skill': 1
+                    };
+                    
+                    // Calculate weights based on filled components
+                    let totalPriority = 0;
+                    for (let component of filledComponents) {
+                        totalPriority += basePriorities[component];
+                    }
+                    
+                    for (let component of filledComponents) {
+                        weights[component] = basePriorities[component] / totalPriority;
+                    }
+                }
+                
+                // Calculate weighted sum
+                let weightedSum = 0;
+                for (let component in componentData) {
+                    weightedSum += componentData[component] * weights[component];
+                }
+                
+                overallDisplay.textContent = weightedSum.toFixed(2) + '%';
+                
+                // Color code overall percentage and show appropriate message
+                overallDisplay.className = 'overall-percentage';
+                let message = '';
+                
+                if (weightedSum >= 85) {
+                    overallDisplay.style.color = '#28a745';
+                    message = 'You are under safe zone';
+                } else if (weightedSum >= 75) {
+                    overallDisplay.style.color = '#ffc107';
+                    message = 'You need to submit the medical certificate';
+                } else {
+                    overallDisplay.style.color = '#dc3545';
+                    message = 'You may be in the detention list';
+                }
+                
+                // Display attendance message
+                let messageElement = document.getElementById('attendanceMessage');
+                messageElement.textContent = message;
+                
+                // Color code the message
+                messageElement.className = 'attendance-message';
+                if (weightedSum >= 85) {
+                    messageElement.classList.add('safe');
+                } else if (weightedSum >= 75) {
+                    messageElement.classList.add('warning');
+                } else {
+                    messageElement.classList.add('danger');
+                }
+            } else if (!hasAnyInput) {
+                document.getElementById('overallPercentage').textContent = '-';
+                // Clear message if no input
+                let messageElement = document.getElementById('attendanceMessage');
+                messageElement.textContent = '';
+                messageElement.className = 'attendance-message';
+            }
+        }
+
+        function showError(message) {
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                errorMessage.style.display = 'none';
+            }, 5000);
+        }
+
+        // Add input event listeners to clear error when user starts typing
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('input', function() {
+                document.getElementById('errorMessage').style.display = 'none';
+            });
+        });
+
+        // Allow Enter key to trigger calculation
+        document.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                calculateAttendance();
+            }
+        });
+    </script>
+</body>
+</html>
